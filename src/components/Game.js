@@ -1,28 +1,25 @@
 import React from "react";
+import { useSelector } from "react-redux";
 import Player from "./Player";
-import {connect} from "react-redux";
-import TurnIndicator from "./TurnIndicator";
+import { TurnIndicator } from "./TurnIndicator";
 import TurnList from "./TurnList";
 
-const Game = ({gameInProgress, players, currentPlayer, playerMap, spaces  }) => {
+export const Game = ({spaces}) => {
+    const {gameInProgress, players, currentPlayerIndex} = useSelector(state => ({
+        currentPlayerIndex: state.currentPlayerIndex,
+        players: state.players,
+        gameInProgress: state.gameInProgress,
+    }));
+
     if (!gameInProgress) { return null; }
 
     return (
     <div>
         {players.map((player, index) => (
-            <Player currentPlayer={currentPlayer}  spaces={spaces} key={index} player={player} />
+            <Player currentPlayer={players[currentPlayerIndex]}  spaces={spaces} key={index} player={player} />
         ))}
         <TurnIndicator />
         <TurnList  />
     </div>
 
 )};
-
-const mapStateToProps = state => ({
-    currentPlayer: state.currentPlayer,
-    players: state.players,
-    playerMap: state.playerMap,
-    gameInProgress: state.gameInProgress,
-});
-
-export default connect(mapStateToProps)(Game);

@@ -1,21 +1,16 @@
 import React from "react";
-import {connect} from "react-redux";
 import {takeTurn} from "../actions";
+import { useDispatch, useSelector } from "react-redux";
 
-const TurnIndicator = ({currentPlayer, onTakeTurnClick}) => (
+export const TurnIndicator = ({onTakeTurnClick}) => {
+    const currentPlayer = useSelector( state => state.players[state.currentPlayerIndex]);
+    const dispatch = useDispatch();
+
+    return (
+
     <div>
-        <button onClick={onTakeTurnClick}>Your Turn <span>{currentPlayer.bug.name}</span> ({currentPlayer.name})
+        <button onClick={() => dispatch(takeTurn())}>Your Turn <span>{currentPlayer.bug.name}</span> ({currentPlayer.name})
         </button>
-    </div>
-);
-
-const mapStateToProps = state => ({
-    currentPlayer: state.players[state.currentPlayerIndex]
-});
-
-const mapDispatchToProps = dispatch => ({
-    onTakeTurnClick: () => dispatch(takeTurn())
-});
-
-export default connect(mapStateToProps, mapDispatchToProps)(TurnIndicator);
+    </div>);
+};
 

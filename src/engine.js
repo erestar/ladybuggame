@@ -4,12 +4,21 @@ export const cardTypes = {
 };
 
 class Space {
-    constructor(id, forward = null, back = null, aphidChange = 0, looseATurn = 0, mantisPass = 0 ) {
+    constructor(id, forward = null, back = null, options = {
+                    aphidChange: 0,
+                    looseATurn: false,
+                    mantisPass: 0,
+                    isMantis: false,
+                    shortCutTo: null,
+                    antsFee: 0
+                }
+    ) {
+        // constructor(id, forward = null, back = null, aphidChange = 0, looseATurn = 0, mantisPass = 0 ) {
         this.id = id;
         this.forward = forward ? forward : id +1;
         this.back = back !== null ? back : id-1;
-        this.grantsMantisPass = mantisPass;
-        this.aphidChange = aphidChange;
+        this.grantsMantisPass = options.mantisPass;
+        this.aphidChange = options.aphidChange;
     }
 
     passThru = null;
@@ -66,10 +75,10 @@ function generateStandardSpaces() {
 
     const spaces = [];
     spaces.push(new Space(0,1, 0, 0,0)); //Can't go further back than start
-    spaces.push(new Space(1, null, null, 0, 0, 1));
+    spaces.push(new Space(1, null, null, { mantisPass: 1}));
     spaces.push(new Space(2));
-    spaces.push(new Space(3,null,null,3));
-    spaces.push(new Space(4,null,null,0,0,1));
+    spaces.push(new Space(3,null,null,{ aphidChange: 3}));
+    spaces.push(new Space(4,null,null,{ mantisPass: 1}));
     spaces.push(new Space(5));
 
     const shortcutSpace = new Space(6);
@@ -99,9 +108,9 @@ function generateStandardSpaces() {
     spaces.push(new Space(10));
     spaces.push(new Space(11));
     spaces.push(new Space(12));
-    spaces.push(new Space(13, null, null, 2));
+    spaces.push(new Space(13, null, null, { aphidChange: 2 }));
     spaces.push(new Space(14));
-    spaces.push(new Space(15, null, null, 5));
+    spaces.push(new Space(15, null, null,{ aphidChange: 5 }));
     spaces.push(new Space(16));
     spaces.push(new Space(17));
     spaces.push(new Space(18));
@@ -190,6 +199,7 @@ class Engine {
      * //todo Add hooks for passThru (ants), endedOn (shortCut) , landedOn (mantis)
      */
     resolveSpace( player) {
+        /** {Space} */
         let currentSpace = this.spaces[player.currentSpace];
         if (currentSpace.grantsMantisPass) {
             player.passes++;
