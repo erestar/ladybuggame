@@ -1,5 +1,5 @@
 import {START_GAME, TAKE_TURN} from "../actions"
-import {shuffle, cards, engine, olivia, tommy, ella, ricky, Player} from '../engine'
+import {cards, engine, Engine, Player, shuffle} from '../engine'
 
 /**
  *
@@ -11,22 +11,23 @@ const initialState = {
     currentPlayerIndex: null,
     turnActivity: [],
     deck: [],
-
 };
 
 const game = (state = initialState, action) => {
     let deck;
-    let players;
+    let players = [];
 
     switch (action.type) {
         case START_GAME:
+
             //todo move all this to the engine to initialize the game
-            //Set up players todo Make this come from a form and ride in on the action
-            players = [
-                new Player('Jim', olivia),
-                new Player('Anna', ella),
-                new Player('Caroline', tommy)
-            ];
+            //todo Sanitize / validate the input here
+            Object.entries(action.bugPlayers).forEach(([key, value]) => {
+                    if (value !== "") {
+                        players.push(new Player(value, Engine.bugs[key]));
+                    }
+                }
+            );
 
             //Put all players at the starting position
             players.forEach((player, index) => {
@@ -60,11 +61,9 @@ const game = (state = initialState, action) => {
                 shuffle(deck);
             }
 
-            const activity = engine.resolveTurn(currentPlayer, deck);
-
-            //Maybe this is a different method because it also needs players
-            let nextPlayerIndex = (state.currentPlayerIndex + 1) % players.length;
-            //^^
+            //Resolve the turn, and figure out
+            const activity = engine.resolveTurn(currentPlayer, deck, state.currentPlayerIndex, players);
+            let nextPlayerIndex = activity.nextPlayerIndex;
 
             return Object.assign({}, state, {
                 turnActivity: [...state.turnActivity, activity],

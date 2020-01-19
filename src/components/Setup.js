@@ -1,23 +1,64 @@
 import React from "react";
-import Player from "./Player";
-import {connect} from "react-redux";
+import {useDispatch, useSelector} from "react-redux";
 import {startGame} from "../actions";
+import {Engine} from "../engine"
+import {useForm} from "react-hook-form";
 
-const Setup = ({gameInProgress, onStartClick}) => {
-    if (gameInProgress) { return null; }
+
+const PlayerFormSection = ({bug, register}) => {
+
     return (
-        <div>
-            <button onClick={onStartClick}>Start Game</button>
+        <div className="playerSection">
+            <br/>
+            <label htmlFor="playerName">
+                Who plays {bug.name}?
+            </label>
+            <br/>
+            <input placeholder="No one" name={bug.cssClass} ref={register}/>
         </div>
-    )};
+    );
 
-const mapStateToProps = state => ({
-    gameInProgress: state.gameInProgress
-});
+};
 
-const mapDispatchToProps = dispatch => ({
-    onStartClick: () => dispatch(startGame())
-});
+const PlayersForm = () => {
+    const {register, handleSubmit} = useForm();
+    const dispatch = useDispatch();
+    const onSubmit = data => {
+        dispatch(startGame(data));
+    };
 
-export default connect(mapStateToProps, mapDispatchToProps)(Setup);
+    return (
+        <form onSubmit={handleSubmit(onSubmit)}>
+            {Object.keys(Engine.bugs).map((value, index) => {
+                return (
+                    <PlayerFormSection register={register} key={index} bug={Engine.bugs[value]}/>
+                );
+            })}
+            <button type="submit">Start Game!</button>
+        </form>
+    );
+};
+
+const AutoPlayForm = () => {
+    const dispatch = useDispatch();
+
+
+};
+
+
+export const Setup = () => {
+    const gameInProgress = useSelector((state) => (state.gameInProgress));
+
+    if (gameInProgress) {
+        return null;
+    }
+    return (
+        <>
+            <PlayersForm/>
+            <hr/>
+            <AutoPlayForm/>
+
+        </>
+    )
+};
 

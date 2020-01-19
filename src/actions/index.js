@@ -1,9 +1,10 @@
 export const START_GAME = 'START_GAME';
 export const TAKE_TURN = 'TAKE_TURN';
 
-export const startGame = () => (
+export const startGame = (bugPlayers) => (
     {
-        type: START_GAME
+        type: START_GAME,
+        bugPlayers
     }
 );
 

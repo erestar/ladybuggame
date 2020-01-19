@@ -20,7 +20,12 @@ describe('reducer', () => {
     seedrandom('a', { global: true });
     it('Initialize the board with 3 players', () => {
         expect(game(null, {
-            type: START_GAME
+            type: START_GAME,
+            bugPlayers: {
+                olivia: "Jim",
+                ella: 'Anna',
+                tommy: 'Caroline'
+            }
         })).toMatchObject({
             gameInProgress: true,
             turnActivity: [],
@@ -266,56 +271,63 @@ describe('reducer', () => {
         seedrandom('a', { global: true });
 
         expect(function () {
-                let state = game(null, { type: START_GAME});
-                state = game(state, { type: TAKE_TURN });
-                state = game(state, { type: TAKE_TURN });
-                state = game(state, { type: TAKE_TURN });
-                state = game(state, { type: TAKE_TURN });
-                state = game(state, { type: TAKE_TURN });
-                state = game(state, { type: TAKE_TURN });
-                state = game(state, { type: TAKE_TURN });
-                state = game(state, { type: TAKE_TURN });
-                state = game(state, { type: TAKE_TURN });
-                state = game(state, { type: TAKE_TURN });
+                let state = game(null, {
+                    type: START_GAME,
+
+                    bugPlayers: {
+                        olivia: "Jim",
+                        ella: 'Anna',
+                        tommy: 'Caroline'
+                    }
+
+                });
+                state = game(state, {type: TAKE_TURN});
+                state = game(state, {type: TAKE_TURN});
+                state = game(state, {type: TAKE_TURN});
+                state = game(state, {type: TAKE_TURN});
+                state = game(state, {type: TAKE_TURN});
+                state = game(state, {type: TAKE_TURN});
+                state = game(state, {type: TAKE_TURN});
+                state = game(state, {type: TAKE_TURN});
+                state = game(state, {type: TAKE_TURN});
+                state = game(state, {type: TAKE_TURN});
                 return state;
             }()
         )
-        .toMatchObject({
-            players: [
-                {
-                    name: 'Jim',
-                    bug: {
-                        name: 'Olivia Orange',
-                        cssClass: 'olivia'
+            .toMatchObject({
+                players: [
+                    {
+                        name: 'Jim',
+                        bug: {
+                            name: 'Olivia Orange',
+                            cssClass: 'olivia'
+                        },
+                        aphids: 3,
+                        passes: 1,
+                        currentSpace: 3
                     },
-                    aphids: 3,
-                    passes: 2,
-                    currentSpace: 4
-                },
-                {
-                    name: 'Anna',
-                    bug: {
-                        name: 'Ella Yellow',
-                        cssClass: 'ella'
+                    {
+                        name: 'Anna',
+                        bug: {
+                            name: 'Ella Yellow',
+                            cssClass: 'ella'
+                        },
+                        aphids: 10,
+                        passes: 0,
+                        currentSpace: 15
                     },
-                    aphids: 10,
-                    passes: 0,
-                    currentSpace: 15
-                },
-                {
-                    name: 'Caroline',
-                    bug: {
-                        name: 'Tommy Teal',
-                        cssClass: 'tommy'
-                    },
-                    // aphids: 3, old
-                    aphids: 6,
-                    passes: 0,
-                    // currentSpace: 12 old
-                    currentSpace: 3
-                }
-            ],
-            currentPlayerIndex: 1,
-        });
+                    {
+                        name: 'Caroline',
+                        bug: {
+                            name: 'Tommy Teal',
+                            cssClass: 'tommy'
+                        },
+                        aphids: 6,
+                        passes: 1,
+                        currentSpace: 4
+                    }
+                ],
+                currentPlayerIndex: 0,
+            });
     });
 });

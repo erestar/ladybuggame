@@ -13,22 +13,20 @@ class Space {
                     antsFee: 0
                 }
     ) {
-        // constructor(id, forward = null, back = null, aphidChange = 0, looseATurn = 0, mantisPass = 0 ) {
         this.id = id;
         this.forward = forward ? forward : id +1;
         this.back = back !== null ? back : id-1;
         this.grantsMantisPass = options.mantisPass;
         this.aphidChange = options.aphidChange;
+        this.looseATurn = options.looseATurn;
     }
 
     passThru = null;
-
     landOn = null;
-
     endOn = null;
 }
 
-class Card {
+export class Card {
     constructor(cardType, magnitude, goAgain = false) {
         this.type = cardType;
         this.magnitude = magnitude;
@@ -47,17 +45,22 @@ class Bug {
     }
 }
 
-export const olivia = new Bug('Olivia Orange', 'olivia');
-export const ricky = new Bug('Ricky Red', 'ricky');
-export const ella = new Bug('Ella Yellow', 'ella');
-export const tommy = new Bug('Tommy Teal', 'tommy');
+class TurnResolution {
+    constructor(actingPlayer, nextPlayerIndex, card, space) {
+        this.player = actingPlayer;
+        this.nextPlayerIndex = nextPlayerIndex;
+        this.card = card;
+        this.space = space;
+    }
+}
+
 
 export class Player {
     /**
      * @param name
      * @param {Bug} bug
      */
-    constructor(name = null, bug= null) {
+    constructor(name = null, bug = null) {
         this.name = name;
         this.bug = bug;
         this.aphids = 0;
@@ -141,14 +144,7 @@ function generateStandardSpaces() {
     return spaces;
 }
 
-// class turnResolution {
-//     constructor(actingPlayer, nextPlayer, card, space) {
-//     }
-//
-// }
-
-
-class Engine {
+export class Engine {
     constructor(spaceGenerator) {
         this.currentPlayerIndex = null;
 
@@ -159,16 +155,39 @@ class Engine {
         this.spaces = spaceGenerator();
     }
 
+    static bugs = {
+        olivia: new Bug('Olivia Orange', 'olivia'),
+        ricky: new Bug('Ricky Red', 'ricky'),
+        ella: new Bug('Ella Yellow', 'ella'),
+        tommy: new Bug('Tommy Teal', 'tommy'),
+    };
+
+
     drawCard = (deck) => (deck.pop());
 
     /**
      *
      * @param {Player} currentPlayer
      * @param {Card[]}deck
+     *
+     * todo Feels like a cop-out to pass currentPlayerIndex in to compute the next player; seems unnatural. Rethink.
+     * @param currentPlayerIndex
+     * @param players
      */
-    resolveTurn(currentPlayer, deck) {
+    resolveTurn(currentPlayer, deck, currentPlayerIndex, players) {
         const card = this.drawCard(deck);
-        return this.resolveCard(currentPlayer, card);
+        this.resolveCard(currentPlayer, card);
+
+        const space = this.spaces[currentPlayer.currentSpace];
+
+
+        //Hand Go Again on card or advance to next player
+        let nextPlayerIndex = currentPlayerIndex;
+        if (!card.goAgain) {
+            nextPlayerIndex = (currentPlayerIndex + 1) % players.length;
+        }
+
+        return new TurnResolution(currentPlayer, nextPlayerIndex, card, space);
     }
 
     resolveCard(player, card) {
@@ -213,7 +232,6 @@ class Engine {
     }
 
     /**
-     *
      * @param {Player} player
      * @param magnitude
      * @returns {*}
@@ -273,7 +291,7 @@ cards.push(...(new Card(cardTypes.APHID, -2).replicate(1)));
  */
 const shuffle = (array) => {
     // return;
-    for(let i = array.length - 1; i > 0; i--){
+    for (let i = array.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * i);
         const temp = array[i];
         array[i] = array[j];
@@ -281,5 +299,8 @@ const shuffle = (array) => {
     }
 };
 
-export { cards, shuffle }
+export const pluralize = (word, count) => (`${count} ${word}${Math.abs(count) !== 1 ? 's' : ''}`);
+
+
+export {cards, shuffle}
 export const engine = new Engine(generateStandardSpaces);

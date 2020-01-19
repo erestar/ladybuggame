@@ -1,8 +1,8 @@
 import React from 'react';
-import './App.css';
-import Setup from "./components/Setup";
 import {engine} from "./engine"
+import {Setup} from "./components/Setup";
 import {Game} from "./components/Game";
+import './App.css';
 
 const App = () => (
     <div className="App">

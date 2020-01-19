@@ -1,27 +1,7 @@
 import React from 'react';
 import classNames from 'classnames';
+import {Space} from './Space';
 
-const AphidIndicator = ({aphidCount}) => {
-    if (!aphidCount) { return null; }
-
-    return (<> You {aphidCount > 0 ? 'get' : 'loose' } {aphidCount} Aphids</>);
-};
-
-const MantisPassGranter = ({grantsMantisPass}) => {
-    if (!grantsMantisPass) { return null; }
-
-    return (<>{grantsMantisPass ? 'You get a MANTIS PASS' : ''} </>);
-};
-
-const Space = ({space}) => (
-    <div className="space">
-        Space #{space.id}
-        <br/>
-        <AphidIndicator aphidCount={space.aphidChange} />
-        <br/>
-        <MantisPassGranter grantsMantisPass={space.grantsMantisPass} />
-    </div>
-);
 
 /**
  *
@@ -39,7 +19,10 @@ const Player = ({currentPlayer, player, spaces}) => (
         Aphid count: {player.aphids}
         <br/>
         Mantis passes: {player.passes}
-        <Space space={spaces[player.currentSpace]} />
+
+        <div className="space">
+            <Space space={spaces[player.currentSpace]}/>
+        </div>
     </div>
 );
 
