@@ -4,26 +4,59 @@ export const cardTypes = {
 };
 
 class Space {
+
+    passThru = null;
+    landOn = [];
+    endOn = null;
+
     constructor(id, forward = null, back = null, options = {
                     aphidChange: 0,
                     looseATurn: false,
                     mantisPass: 0,
                     isMantis: false,
                     shortCutTo: null,
-                    antsFee: 0
+                    antsFee: 0,
+                    isHome: false
                 }
     ) {
         this.id = id;
-        this.forward = forward ? forward : id +1;
-        this.back = back !== null ? back : id-1;
+
+        this.forward = forward ? forward : id + 1;
+        this.back = back !== null ? back : id - 1;
+
         this.grantsMantisPass = options.mantisPass;
         this.aphidChange = options.aphidChange;
         this.looseATurn = options.looseATurn;
+
+        this.isMantis = options.isMantis;
+        if (this.isMantis) {
+            this.landOn.push(
+                (/** Player */ player) => {
+                    //This should only get evaluated as soon as we hit the space. So you need to have a pass when you get here, not when you leave it.
+
+                    //We have a pass. Take it and leave you alone
+                    if (player.passes > 0) {
+                        player.passes--;
+                        return;
+                    }
+
+                    //Back to the start. That's OK, that's part of the fun.
+                    player.currentSpace = 0;
+                });
+        }
+
+        this.isHome = options.isHome;
+        if (this.isHome) {
+            //if we're home, set forward to null, which is only allowed on this square, so the move method on the engine doesn't proceed
+            this.forward = null;
+
+            this.landOn.push(() => {
+                //todo introduce some toggle on the player indicating he's home, and then we'll s
+                console.log('YOU GOT HOME');
+            });
+        }
     }
 
-    passThru = null;
-    landOn = null;
-    endOn = null;
 }
 
 export class Card {
@@ -93,20 +126,7 @@ function generateStandardSpaces() {
     spaces.push(new Space(7));
     spaces.push(new Space(8));
 
-    const mantisSpace = new Space(9);
-    mantisSpace.landOn = (/** Player */ player) => {
-        //This should only get evaluated as soon as we hit the space. So you need to have a pass when you get here, not when you leave it.
-
-        //We have a pass. Take it and leave you alone
-        if (player.passes > 0) {
-            player.passes--;
-            return;
-        }
-
-        //Back to the start. That's OK, that's part of the fun.
-        player.currentSpace = 0;
-    };
-    spaces.push(mantisSpace);
+    spaces.push(new Space(9, null, null, { isMantis: true }));
 
     spaces.push(new Space(10));
     spaces.push(new Space(11));
@@ -139,7 +159,7 @@ function generateStandardSpaces() {
     spaces.push(new Space(38));
     spaces.push(new Space(39));
     spaces.push(new Space(40));
-    spaces.push(new Space(41));
+    spaces.push(new Space(41, null, null, { isHome: true}));
 
     return spaces;
 }
@@ -180,12 +200,12 @@ export class Engine {
 
         const space = this.spaces[currentPlayer.currentSpace];
 
-
-        //Hand Go Again on card or advance to next player
+        //Handle Go Again on card or advance to next player
         let nextPlayerIndex = currentPlayerIndex;
         if (!card.goAgain) {
             nextPlayerIndex = (currentPlayerIndex + 1) % players.length;
         }
+        //todo handle case where a player is home. The player doesn't get more turns
 
         return new TurnResolution(currentPlayer, nextPlayerIndex, card, space);
     }
@@ -194,7 +214,6 @@ export class Engine {
         // move
         if (card.type === cardTypes.MOVE) {
             this.move(player, card.magnitude);
-            //todo We're going to need to do the passThru and landedOn checks here to see if we run into an obstacle
 
             //resolve landing
             this.resolveSpace(player);
@@ -215,7 +234,9 @@ export class Engine {
      *
      * @param {Player} player
      * @returns {Space}
-     * //todo Add hooks for passThru (ants), endedOn (shortCut) , landedOn (mantis)
+     * @todo Add hooks for passThru (ants), endedOn (shortCut) , landedOn (mantis)
+     * @todo maybe move these increment things to 'endOn' just to keep everything consistent
+     * @todo Need a way to trigger some kind of messages
      */
     resolveSpace( player) {
         /** {Space} */
@@ -240,14 +261,21 @@ export class Engine {
         let currentSpace = player.currentSpace;
         let movingForward = magnitude > 0;
         for (let i=0; i < Math.abs(magnitude); i++) {
-            currentSpace = movingForward ? this.spaces[currentSpace].forward : this.spaces[currentSpace].back;
+            currentSpace =
+                movingForward && //we're moving in a positive direction
+                this.spaces[currentSpace].forward //And .forward is set (which is true for every space except the Home space
+                    ? this.spaces[currentSpace].forward :
+                    this.spaces[currentSpace].back;
+
             player.currentSpace = currentSpace;
 
-            if (this.spaces[player.currentSpace].landOn) {
-                this.spaces[player.currentSpace].landOn(player);
+            //Run all of the functions registered as 'landOn' for the space
+            if (this.spaces[player.currentSpace].landOn.length) {
+                this.spaces[player.currentSpace].landOn.forEach((landOnFunction) => { landOnFunction(player) }) ;
             }
         }
 
+        //Run all of the function registered as 'endOn' for the space
         if (this.spaces[player.currentSpace].endOn) {
             this.spaces[player.currentSpace].endOn(player);
         }
@@ -300,7 +328,6 @@ const shuffle = (array) => {
 };
 
 export const pluralize = (word, count) => (`${count} ${word}${Math.abs(count) !== 1 ? 's' : ''}`);
-
 
 export {cards, shuffle}
 export const engine = new Engine(generateStandardSpaces);

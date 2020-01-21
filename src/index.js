@@ -18,20 +18,10 @@ store.dispatch(startGame({
     ella: 'Anna',
     tommy: 'Caroline'
 }));
-store.dispatch(takeTurn());
-store.dispatch(takeTurn());
-store.dispatch(takeTurn());
-store.dispatch(takeTurn());
-store.dispatch(takeTurn());
-store.dispatch(takeTurn());
-store.dispatch(takeTurn());
-store.dispatch(takeTurn());
-store.dispatch(takeTurn());
-store.dispatch(takeTurn());
-store.dispatch(takeTurn());
-store.dispatch(takeTurn());
-store.dispatch(takeTurn());
-store.dispatch(takeTurn());
+
+for (let i=0; i < 100; i++) {
+    store.dispatch(takeTurn());
+}
 
 render(
     <Provider store={store}>

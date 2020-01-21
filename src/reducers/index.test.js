@@ -330,4 +330,62 @@ describe('reducer', () => {
                 currentPlayerIndex: 0,
             });
     });
+    it('Play until all home', () => {
+        seedrandom('a', { global: true });
+
+        expect(function () {
+                let state = game(null, {
+                    type: START_GAME,
+
+                    bugPlayers: {
+                        olivia: "Jim",
+                        ella: 'Anna',
+                        tommy: 'Caroline'
+                    }
+
+                });
+
+                for (let i=0;i<100;i++) {
+                    state = game(state, {type: TAKE_TURN});
+                }
+
+                return state;
+            }()
+        )
+            // .toMatchObject({
+            //     players: [
+            //         {
+            //             name: 'Jim',
+            //             bug: {
+            //                 name: 'Olivia Orange',
+            //                 cssClass: 'olivia'
+            //             },
+            //             aphids: 3,
+            //             passes: 1,
+            //             currentSpace: 3
+            //         },
+            //         {
+            //             name: 'Anna',
+            //             bug: {
+            //                 name: 'Ella Yellow',
+            //                 cssClass: 'ella'
+            //             },
+            //             aphids: 10,
+            //             passes: 0,
+            //             currentSpace: 15
+            //         },
+            //         {
+            //             name: 'Caroline',
+            //             bug: {
+            //                 name: 'Tommy Teal',
+            //                 cssClass: 'tommy'
+            //             },
+            //             aphids: 6,
+            //             passes: 1,
+            //             currentSpace: 4
+            //         }
+            //     ],
+            //     currentPlayerIndex: 0,
+            // });
+    });
 });

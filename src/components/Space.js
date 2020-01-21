@@ -16,6 +16,16 @@ const MantisPassGranter = ({grantsMantisPass}) => {
     return (<>{grantsMantisPass ? 'You get a MANTIS PASS' : ''} </>);
 };
 
+const Home = ({isHome}) => {
+    if (!isHome) {
+        return null;
+    }
+
+    return (
+        <>HOME</>
+    );
+};
+
 export const Space = ({space}) => (
     <>
         Space #{space.id}
@@ -23,5 +33,7 @@ export const Space = ({space}) => (
         <AphidIndicator aphidCount={space.aphidChange}/>
         <br/>
         <MantisPassGranter grantsMantisPass={space.grantsMantisPass}/>
+        <br/>
+        <Home isHome={space.isHome} />
     </>
 );
