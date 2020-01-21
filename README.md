@@ -1,4 +1,4 @@
-#The Ladybug Game
+# The Ladybug Game
 To fire it up, do
 
 `npm install` 
